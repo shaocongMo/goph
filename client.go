@@ -26,7 +26,19 @@ func New(user string, addr string, auth Auth) (c *Client, err error) {
 		return
 	}
 
-	c, err = NewConn(user, addr, auth, callback)
+	c, err = NewConn(user, addr, 0, auth, callback)
+	return
+}
+
+func NewWithPort(user string, addr string, port int, auth Auth) (c *Client, err error) {
+
+	callback, err := DefaultKnownHosts()
+
+	if err != nil {
+		return
+	}
+
+	c, err = NewConn(user, addr, port, auth, callback)
 	return
 }
 
@@ -36,15 +48,16 @@ func New(user string, addr string, auth Auth) (c *Client, err error) {
 // You can add the key to know hosts and use New() func instead!
 func NewUnknown(user string, addr string, auth Auth) (*Client, error) {
 
-	return NewConn(user, addr, auth, ssh.InsecureIgnoreHostKey())
+	return NewConn(user, addr, 0, auth, ssh.InsecureIgnoreHostKey())
 }
 
 // Get new client connection.
-func NewConn(user string, addr string, auth Auth, callback ssh.HostKeyCallback) (c *Client, err error) {
+func NewConn(user string, addr string, port int, auth Auth, callback ssh.HostKeyCallback) (c *Client, err error) {
 
 	c = &Client{
 		User: user,
 		Addr: addr,
+		Port: port,
 		Auth: auth,
 	}
 
